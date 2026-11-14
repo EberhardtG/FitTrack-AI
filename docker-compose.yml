@@ -1,0 +1,59 @@
+
+
+services:
+
+  backend:
+    build:
+      context: ./backend
+
+    container_name: fittrack_backend
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+    - ./backend/.env
+
+    depends_on:
+      - ollama
+
+    volumes:
+      - chroma_data:/app/chroma_db
+      - sqlite_data:/app/data
+
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+
+    container_name: fittrack_frontend
+
+    ports:
+      - "8501:8501"
+
+    environment:
+      BACKEND_URL: http://backend:8000
+
+    depends_on:
+      - backend
+
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama
+
+    container_name: fittrack_ollama
+
+    ports:
+      - "11434:11434"
+
+    volumes:
+      - ollama_data:/root/.ollama
+
+    restart: unless-stopped
+
+volumes:
+  chroma_data:
+  ollama_data:
+  sqlite_data:
